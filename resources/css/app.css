@@ -1,0 +1,100 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views/**/*.blade.php';
+@source '../js/**/*.js';
+
+
+@theme {
+    /* Typography */
+    --font-sans:
+        'Instrument Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif,
+        'Apple Color Emoji',
+        'Segoe UI Emoji',
+        'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+
+    /* PLANSI Brand Colors */
+
+    /* Primary */
+    --color-primary: #174C3C;
+    --color-primary-hover: #123D31;
+
+    /* Mint */
+    --color-mint: #BFE3D0;
+    --color-mint-soft: #E7F4ED;
+
+    /* Backgrounds */
+    --color-background: #FAF9F5;
+    --color-surface: #FFFFFF;
+
+    /* Yellow Accent */
+    --color-yellow-accent: #F4C95D;
+    --color-yellow-soft: #FFF4CF;
+
+    /* Typography */
+    --color-text-primary: #1D2925;
+    --color-text-secondary: #66736E;
+
+    /* UI */
+    --color-border: #DDE5E1;
+
+    /* States */
+    --color-danger: #D95C59;
+    --color-success: #3D8B68;
+}
+
+
+/* Global Application Styles */
+
+html {
+    background-color: #FAF9F5;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+
+    background-color: #FAF9F5;
+
+    color: #1D2925;
+
+    font-family:
+        'Instrument Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    -webkit-font-smoothing: antialiased;
+}
+
+
+/* Better default form behavior */
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+button,
+a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+    outline: 2px solid #174C3C;
+    outline-offset: 2px;
+}
+
+[x-cloak] {
+    display: none !important;
+}
