@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Login | PLANSI')
+@section('title', 'Forgot Password | PLANSI')
 
 @section('content')
 
@@ -15,9 +15,8 @@
                 text-primary
             "
         >
-            Welcome back
+            Password recovery
         </p>
-
 
         <h1
             class="
@@ -27,9 +26,8 @@
                 text-text-primary
             "
         >
-            Sign in to your account
+            Forgot your password?
         </h1>
-
 
         <p
             class="
@@ -39,38 +37,30 @@
                 text-text-secondary
             "
         >
-            Continue where you left off
-            and stay focused on your tasks.
+            Enter your email address and we'll send you
+            a secure link to reset your password.
         </p>
 
     </div>
 
 
-    {{-- Errors --}}
-    @if ($errors->any())
+    {{-- Success --}}
+    @if (session('status'))
 
         <div
             class="
                 mb-6
                 rounded-2xl
                 border
-                border-danger/20
-                bg-danger/5
+                border-primary/20
+                bg-mint-soft
                 px-5
                 py-4
             "
         >
-
-            <p
-                class="
-                    text-sm
-                    font-medium
-                    text-danger
-                "
-            >
-                The provided credentials could not be verified.
+            <p class="text-sm font-semibold text-primary">
+                {{ session('status') }}
             </p>
-
         </div>
 
     @endif
@@ -78,12 +68,11 @@
 
     <form
         method="POST"
-        action="{{ route('login') }}"
+        action="{{ route('password.email') }}"
         class="space-y-5"
     >
 
         @csrf
-
 
         {{-- Email --}}
         <div>
@@ -100,7 +89,6 @@
             >
                 Email
             </label>
-
 
             <input
                 type="email"
@@ -131,7 +119,6 @@
                 "
             >
 
-
             @error('email')
 
                 <p class="mt-2 text-sm text-danger">
@@ -143,108 +130,9 @@
         </div>
 
 
-        {{-- Password --}}
-        <div
-            x-data="{
-                showPassword: false
-            }"
-        >
-
-           <div class="mb-2 flex items-center justify-between">
-
-    <label
-        for="password"
-        class="
-            text-sm
-            font-semibold
-            text-text-primary
-        "
-    >
-        Password
-    </label>
-
-    <a
-        href="{{ route('password.request') }}"
-        class="
-            text-xs
-            font-semibold
-            text-primary
-            transition
-            hover:text-primary-hover
-        "
-    >
-        Forgot password?
-    </a>
-
-</div>
-
-            <div class="relative">
-
-                <input
-                    :type="showPassword ? 'text' : 'password'"
-                    id="password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                    class="
-                        w-full
-                        rounded-2xl
-                        border
-                        border-border
-                        bg-surface
-                        px-4
-                        py-3.5
-                        pr-16
-                        text-sm
-                        text-text-primary
-                        outline-none
-                        transition
-                        placeholder:text-text-secondary/60
-                        hover:border-primary/50
-                        focus:border-primary
-                        focus:ring-4
-                        focus:ring-mint-soft
-                    "
-                >
-
-
-                <button
-                    type="button"
-                    @click="showPassword = !showPassword"
-                    class="
-                        absolute
-                        right-4
-                        top-1/2
-                        -translate-y-1/2
-                        text-xs
-                        font-semibold
-                        text-text-secondary
-                        transition
-                        hover:text-primary
-                    "
-                    x-text="showPassword ? 'Hide' : 'Show'"
-                ></button>
-
-            </div>
-
-
-            @error('password')
-
-                <p class="mt-2 text-sm text-danger">
-                    {{ $message }}
-                </p>
-
-            @enderror
-
-        </div>
-
-
-        {{-- Submit --}}
         <button
             type="submit"
             class="
-                mt-2
                 inline-flex
                 w-full
                 items-center
@@ -264,13 +152,12 @@
                 focus:ring-mint
             "
         >
-            Sign In
+            Send Reset Link
         </button>
 
     </form>
 
 
-    {{-- Register Link --}}
     <p
         class="
             mt-7
@@ -279,10 +166,10 @@
             text-text-secondary
         "
     >
-        Don't have an account?
+        Remember your password?
 
         <a
-            href="{{ route('register') }}"
+            href="{{ route('login') }}"
             class="
                 font-semibold
                 text-primary
@@ -290,7 +177,7 @@
                 hover:text-primary-hover
             "
         >
-            Create one
+            Sign in
         </a>
     </p>
 

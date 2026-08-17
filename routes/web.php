@@ -6,9 +6,10 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 Route::get('/', function () {
     return view('welcome');
 });
@@ -33,6 +34,17 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', [LoginController::class, 'store'])
         ->middleware('throttle:5,1');
+        Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
+    ->name('password.request');
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])
+    ->name('password.reset');
+
+Route::post('/reset-password', [ResetPasswordController::class, 'store'])
+    ->name('password.update');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('password.email');
 });
 
 

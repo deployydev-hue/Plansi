@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Login | PLANSI')
+@section('title', 'Reset Password | PLANSI')
 
 @section('content')
 
@@ -15,9 +15,8 @@
                 text-primary
             "
         >
-            Welcome back
+            Secure your account
         </p>
-
 
         <h1
             class="
@@ -27,9 +26,8 @@
                 text-text-primary
             "
         >
-            Sign in to your account
+            Reset your password
         </h1>
-
 
         <p
             class="
@@ -39,14 +37,12 @@
                 text-text-secondary
             "
         >
-            Continue where you left off
-            and stay focused on your tasks.
+            Choose a new password for your PLANSI account.
         </p>
 
     </div>
 
 
-    {{-- Errors --}}
     @if ($errors->any())
 
         <div
@@ -60,17 +56,9 @@
                 py-4
             "
         >
-
-            <p
-                class="
-                    text-sm
-                    font-medium
-                    text-danger
-                "
-            >
-                The provided credentials could not be verified.
+            <p class="text-sm font-semibold text-danger">
+                Please check the information below.
             </p>
-
         </div>
 
     @endif
@@ -78,11 +66,17 @@
 
     <form
         method="POST"
-        action="{{ route('login') }}"
+        action="{{ route('password.update') }}"
         class="space-y-5"
     >
 
         @csrf
+
+        <input
+            type="hidden"
+            name="token"
+            value="{{ $token }}"
+        >
 
 
         {{-- Email --}}
@@ -101,16 +95,13 @@
                 Email
             </label>
 
-
             <input
                 type="email"
                 id="email"
                 name="email"
-                value="{{ old('email') }}"
-                placeholder="name@example.com"
+                value="{{ old('email', $email) }}"
                 autocomplete="email"
                 required
-                autofocus
                 class="
                     w-full
                     rounded-2xl
@@ -123,7 +114,6 @@
                     text-text-primary
                     outline-none
                     transition
-                    placeholder:text-text-secondary/60
                     hover:border-primary/50
                     focus:border-primary
                     focus:ring-4
@@ -131,13 +121,10 @@
                 "
             >
 
-
             @error('email')
-
                 <p class="mt-2 text-sm text-danger">
                     {{ $message }}
                 </p>
-
             @enderror
 
         </div>
@@ -150,33 +137,18 @@
             }"
         >
 
-           <div class="mb-2 flex items-center justify-between">
-
-    <label
-        for="password"
-        class="
-            text-sm
-            font-semibold
-            text-text-primary
-        "
-    >
-        Password
-    </label>
-
-    <a
-        href="{{ route('password.request') }}"
-        class="
-            text-xs
-            font-semibold
-            text-primary
-            transition
-            hover:text-primary-hover
-        "
-    >
-        Forgot password?
-    </a>
-
-</div>
+            <label
+                for="password"
+                class="
+                    mb-2
+                    block
+                    text-sm
+                    font-semibold
+                    text-text-primary
+                "
+            >
+                New Password
+            </label>
 
             <div class="relative">
 
@@ -184,8 +156,8 @@
                     :type="showPassword ? 'text' : 'password'"
                     id="password"
                     name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
+                    placeholder="Enter a new password"
+                    autocomplete="new-password"
                     required
                     class="
                         w-full
@@ -208,6 +180,83 @@
                     "
                 >
 
+                <button
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="
+                        absolute
+                        right-4
+                        top-1/2
+                        -translate-y-1/2
+                        text-xs
+                        font-semibold
+                        text-text-secondary
+                        transition
+                        hover:text-primary
+                    "
+                    x-text="showPassword ? 'Hide' : 'Show'"
+                ></button>
+
+            </div>
+
+            @error('password')
+                <p class="mt-2 text-sm text-danger">
+                    {{ $message }}
+                </p>
+            @enderror
+
+        </div>
+
+
+        {{-- Confirm Password --}}
+        <div
+            x-data="{
+                showPassword: false
+            }"
+        >
+
+            <label
+                for="password_confirmation"
+                class="
+                    mb-2
+                    block
+                    text-sm
+                    font-semibold
+                    text-text-primary
+                "
+            >
+                Confirm New Password
+            </label>
+
+            <div class="relative">
+
+                <input
+                    :type="showPassword ? 'text' : 'password'"
+                    id="password_confirmation"
+                    name="password_confirmation"
+                    placeholder="Repeat your new password"
+                    autocomplete="new-password"
+                    required
+                    class="
+                        w-full
+                        rounded-2xl
+                        border
+                        border-border
+                        bg-surface
+                        px-4
+                        py-3.5
+                        pr-16
+                        text-sm
+                        text-text-primary
+                        outline-none
+                        transition
+                        placeholder:text-text-secondary/60
+                        hover:border-primary/50
+                        focus:border-primary
+                        focus:ring-4
+                        focus:ring-mint-soft
+                    "
+                >
 
                 <button
                     type="button"
@@ -228,23 +277,12 @@
 
             </div>
 
-
-            @error('password')
-
-                <p class="mt-2 text-sm text-danger">
-                    {{ $message }}
-                </p>
-
-            @enderror
-
         </div>
 
 
-        {{-- Submit --}}
         <button
             type="submit"
             class="
-                mt-2
                 inline-flex
                 w-full
                 items-center
@@ -264,34 +302,9 @@
                 focus:ring-mint
             "
         >
-            Sign In
+            Reset Password
         </button>
 
     </form>
-
-
-    {{-- Register Link --}}
-    <p
-        class="
-            mt-7
-            text-center
-            text-sm
-            text-text-secondary
-        "
-    >
-        Don't have an account?
-
-        <a
-            href="{{ route('register') }}"
-            class="
-                font-semibold
-                text-primary
-                transition
-                hover:text-primary-hover
-            "
-        >
-            Create one
-        </a>
-    </p>
 
 @endsection
