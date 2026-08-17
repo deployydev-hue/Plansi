@@ -5,11 +5,20 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TaskController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Guest Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware('guest')->group(function () {
 
@@ -26,13 +35,57 @@ Route::middleware('guest')->group(function () {
         ->middleware('throttle:5,1');
 });
 
+
+/*
+|--------------------------------------------------------------------------
+| Email Verification Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')
+    ->name('verification.notice');
+
+
+Route::get(
+    '/email/verify/{id}/{hash}',
+    function (EmailVerificationRequest $request) {
+
+        $request->fulfill();
+
+        return redirect()->route('dashboard');
+    }
+)->middleware(['auth', 'signed'])
+    ->name('verification.verify');
+
+
+Route::post('/email/verification-notification', function (Request $request) {
+
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('message', 'Verification link sent!');
+
+})->middleware(['auth', 'throttle:6,1'])
+    ->name('verification.send');
+
+
+/*
+|--------------------------------------------------------------------------
+| Verified Application Routes
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
+    ->middleware(['auth', 'verified'])
     ->name('dashboard');
-Route::middleware('auth')->group(function () {
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle'])
         ->name('tasks.toggle');
+
     Route::get('/categories', [CategoryController::class, 'index'])
         ->name('categories.index');
 
@@ -63,6 +116,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::post('/logout', [LoginController::class, 'destroy'])
     ->middleware('auth')
