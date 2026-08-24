@@ -102,59 +102,48 @@
                 aria-label="Primary navigation"
             >
 
-                @foreach ([
-                    'dashboard' => [
-                        'Dashboard',
-                        route('dashboard')
-                    ],
+               @foreach ([
+    [
+        ['dashboard'],
+        'Dashboard',
+        route('dashboard')
+    ],
+    [
+        ['tasks.*'],
+        'Tasks',
+        route('tasks.index')
+    ],
+    [
+        ['categories.*'],
+        'Categories',
+        route('categories.index')
+    ],
+    [
+        ['profile.*', 'password.edit'],
+        'Settings',
+        route('profile.edit')
+    ],
+] as [$patterns, $label, $url])
 
-                    'tasks.*' => [
-                        'Tasks',
-                        route('tasks.index')
-                    ],
+    @php
+        $isActive = request()->routeIs(...$patterns);
+    @endphp
 
-                    'categories.*' => [
-                        'Categories',
-                        route('categories.index')
-                    ],
+    <a
+        href="{{ $url }}"
+        @class([
+            'rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-mint-soft hover:text-primary',
+            'bg-mint-soft text-primary' => $isActive,
+            'text-text-secondary' => ! $isActive,
+        ])
+        @if ($isActive)
+            aria-current="page"
+        @endif
+    >
+        {{ $label }}
+    </a>
 
-                    'password.edit' => [
-                        'Settings',
-                        route('password.edit')
-                    ],
-
-                ] as $pattern => [$label, $url])
-
-                    <a
-                        href="{{ $url }}"
-
-                        @class([
-                            '
-                                rounded-xl
-                                px-4
-                                py-2
-                                text-sm
-                                font-medium
-                                transition
-                                hover:bg-mint-soft
-                                hover:text-primary
-                            ',
-
-                            'bg-mint-soft text-primary'
-                                => request()->routeIs($pattern),
-
-                            'text-text-secondary'
-                                => ! request()->routeIs($pattern),
-                        ])
-
-                        @if (request()->routeIs($pattern))
-                            aria-current="page"
-                        @endif
-                    >
-                        {{ $label }}
-                    </a>
-
-                @endforeach
+@endforeach
 
             </nav>
 
@@ -331,74 +320,59 @@
         >
 
             <nav
-                class="
-                    mx-auto
-                    max-w-7xl
-                    space-y-1
-                "
-                aria-label="Mobile navigation"
-            >
+    class="
+        mx-auto
+        max-w-7xl
+        space-y-1
+    "
+    aria-label="Mobile navigation"
+>
 
-                @foreach ([
-                    'dashboard' => [
-                        'Dashboard',
-                        route('dashboard')
-                    ],
+    @foreach ([
+        [
+            ['dashboard'],
+            'Dashboard',
+            route('dashboard')
+        ],
+        [
+            ['tasks.*'],
+            'Tasks',
+            route('tasks.index')
+        ],
+        [
+            ['categories.*'],
+            'Categories',
+            route('categories.index')
+        ],
+        [
+            ['profile.*', 'password.edit'],
+            'Settings',
+            route('profile.edit')
+        ],
+    ] as [$patterns, $label, $url])
 
-                    'tasks.*' => [
-                        'Tasks',
-                        route('tasks.index')
-                    ],
+        @php
+            $isActive = request()->routeIs(...$patterns);
+        @endphp
 
-                    'categories.*' => [
-                        'Categories',
-                        route('categories.index')
-                    ],
+        <a
+            href="{{ $url }}"
+            @click="mobileMenuOpen = false"
+            @class([
+                'block rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-mint-soft hover:text-primary',
+                'bg-mint-soft text-primary' => $isActive,
+                'text-text-secondary' => ! $isActive,
+            ])
+            @if ($isActive)
+                aria-current="page"
+            @endif
+        >
+            {{ $label }}
+        </a>
 
-                    'password.edit' => [
-                        'Settings',
-                        route('password.edit')
-                    ],
+    @endforeach
 
-                ] as $pattern => [$label, $url])
-
-                    <a
-                        href="{{ $url }}"
-
-                        @click="
-                            mobileMenuOpen = false
-                        "
-
-                        @class([
-                            '
-                                block
-                                rounded-xl
-                                px-4
-                                py-3
-                                text-sm
-                                font-medium
-                                transition
-                                hover:bg-mint-soft
-                                hover:text-primary
-                            ',
-
-                            'bg-mint-soft text-primary'
-                                => request()->routeIs($pattern),
-
-                            'text-text-secondary'
-                                => ! request()->routeIs($pattern),
-                        ])
-
-                        @if (request()->routeIs($pattern))
-                            aria-current="page"
-                        @endif
-                    >
-                        {{ $label }}
-                    </a>
-
-                @endforeach
-
-            </nav>
+</nav>
 
 
             {{-- Mobile User Info --}}

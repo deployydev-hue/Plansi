@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ChangePasswordController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
@@ -95,7 +96,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/account/profile', [ProfileController::class, 'edit'])
+    ->name('profile.edit');
 
+Route::put('/account/profile', [ProfileController::class, 'update'])
+    ->name('profile.update');
     Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle'])
         ->name('tasks.toggle');
 
