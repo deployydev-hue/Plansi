@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
                 return array_filter([
                     $host ? '^'.preg_quote($host, '/').'$' : null,
+                    '^healthcheck\.railway\.app$',
                     '^localhost$',
                     '^127\.0\.0\.1$',
                 ]);
