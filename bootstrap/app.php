@@ -12,10 +12,24 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-       $middleware->trustProxies(at: '*');
+        $middleware->trustProxies(at: '*');
+
+        $middleware->trustHosts(
+            at: function () {
+                $host = parse_url(config('app.url'), PHP_URL_HOST);
+
+                return array_filter([
+                    $host ? '^'.preg_quote($host, '/').'$' : null,
+                    '^localhost$',
+                    '^127\.0\.0\.1$',
+                ]);
+            },
+            subdomains: false,
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
-    })->create();
+    })
+    ->create();

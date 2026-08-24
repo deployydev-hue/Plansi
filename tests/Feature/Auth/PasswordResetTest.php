@@ -21,7 +21,7 @@ class PasswordResetTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_password_reset_link_can_be_requested(): void
+    public function test_existing_user_can_request_password_reset_link(): void
     {
         Notification::fake();
 
@@ -31,12 +31,35 @@ class PasswordResetTest extends TestCase
             'email' => $user->email,
         ]);
 
+        $response->assertSessionHasNoErrors();
+
+        $response->assertSessionHas(
+            'status',
+            'If an account exists for this email, a password reset link will be sent.'
+        );
+
         Notification::assertSentTo(
             $user,
             ResetPassword::class
         );
+    }
+
+    public function test_unknown_email_receives_same_generic_response(): void
+    {
+        Notification::fake();
+
+        $response = $this->post(route('password.email'), [
+            'email' => 'unknown@example.com',
+        ]);
 
         $response->assertSessionHasNoErrors();
+
+        $response->assertSessionHas(
+            'status',
+            'If an account exists for this email, a password reset link will be sent.'
+        );
+
+        Notification::assertNothingSent();
     }
 
     public function test_reset_password_screen_can_be_rendered(): void
@@ -58,7 +81,7 @@ class PasswordResetTest extends TestCase
     public function test_password_can_be_reset_with_valid_token(): void
     {
         $user = User::factory()->create([
-            'password' => Hash::make('old-password'),
+            'password' => Hash::make('old-password-123'),
         ]);
 
         $token = Password::createToken($user);
@@ -70,6 +93,8 @@ class PasswordResetTest extends TestCase
             'password_confirmation' => 'new-password-123',
         ]);
 
+        $response->assertSessionHasNoErrors();
+
         $response->assertRedirect(route('login'));
 
         $this->assertTrue(
@@ -80,10 +105,10 @@ class PasswordResetTest extends TestCase
         );
     }
 
-    public function test_password_is_not_reset_with_invalid_token(): void
+    public function test_invalid_token_returns_generic_error(): void
     {
         $user = User::factory()->create([
-            'password' => Hash::make('old-password'),
+            'password' => Hash::make('old-password-123'),
         ]);
 
         $response = $this->post(route('password.update'), [
@@ -93,11 +118,56 @@ class PasswordResetTest extends TestCase
             'password_confirmation' => 'new-password-123',
         ]);
 
-        $response->assertSessionHasErrors('email');
+        $response->assertSessionHasErrors([
+            'email' => 'This password reset link is invalid or has expired.',
+        ]);
 
         $this->assertTrue(
             Hash::check(
-                'old-password',
+                'old-password-123',
+                $user->fresh()->password
+            )
+        );
+    }
+
+    public function test_unknown_email_with_invalid_token_returns_same_generic_error(): void
+    {
+        $response = $this->post(route('password.update'), [
+            'token' => 'invalid-token',
+            'email' => 'unknown@example.com',
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'This password reset link is invalid or has expired.',
+        ]);
+    }
+
+    public function test_expired_token_returns_generic_error(): void
+    {
+        $user = User::factory()->create([
+            'password' => Hash::make('old-password-123'),
+        ]);
+
+        $token = Password::createToken($user);
+
+        $this->travel(61)->minutes();
+
+        $response = $this->post(route('password.update'), [
+            'token' => $token,
+            'email' => $user->email,
+            'password' => 'new-password-123',
+            'password_confirmation' => 'new-password-123',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'This password reset link is invalid or has expired.',
+        ]);
+
+        $this->assertTrue(
+            Hash::check(
+                'old-password-123',
                 $user->fresh()->password
             )
         );

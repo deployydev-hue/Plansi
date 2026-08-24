@@ -36,19 +36,20 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/login', [LoginController::class, 'store'])
         ->middleware('throttle:5,1');
-        Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
-    ->name('password.request');
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
+        ->name('password.request');
+
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('password.email');
+
     Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])
-    ->name('password.reset');
+        ->name('password.reset');
 
-Route::post('/reset-password', [ResetPasswordController::class, 'store'])
-    ->name('password.update');
-
-Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
-    ->middleware('throttle:5,1')
-    ->name('password.email');
+    Route::post('/reset-password', [ResetPasswordController::class, 'store'])
+        ->name('password.update');
 });
-
 
 /*
 |--------------------------------------------------------------------------
@@ -96,13 +97,31 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/account/profile', [ProfileController::class, 'edit'])
-    ->name('profile.edit');
 
-Route::put('/account/profile', [ProfileController::class, 'update'])
-    ->name('profile.update');
-    Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle'])
-        ->name('tasks.toggle');
+    /*
+    |--------------------------------------------------------------------------
+    | Account
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/account/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::put('/account/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+
+    Route::get('/account/password', [ChangePasswordController::class, 'edit'])
+        ->name('password.edit');
+
+    Route::put('/account/password', [ChangePasswordController::class, 'update'])
+        ->name('password.change');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Categories
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/categories', [CategoryController::class, 'index'])
         ->name('categories.index');
@@ -116,6 +135,13 @@ Route::put('/account/profile', [ProfileController::class, 'update'])
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
         ->name('categories.destroy');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tasks
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/tasks', [TaskController::class, 'index'])
         ->name('tasks.index');
 
@@ -125,6 +151,9 @@ Route::put('/account/profile', [ProfileController::class, 'update'])
     Route::post('/tasks', [TaskController::class, 'store'])
         ->name('tasks.store');
 
+    Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle'])
+        ->name('tasks.toggle');
+
     Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])
         ->name('tasks.edit');
 
@@ -133,11 +162,6 @@ Route::put('/account/profile', [ProfileController::class, 'update'])
 
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
-        Route::get('/account/password', [ChangePasswordController::class, 'edit'])
-    ->name('password.edit');
-
-Route::put('/account/password', [ChangePasswordController::class, 'update'])
-    ->name('password.change');
 });
 
 

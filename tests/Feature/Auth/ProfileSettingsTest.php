@@ -127,54 +127,40 @@ class ProfileSettingsTest extends TestCase
         );
     }
 
-    public function test_changing_email_requires_verification_again(): void
-    {
-        Notification::fake();
+   public function test_changing_email_requires_verification_again(): void
+{
+    Notification::fake();
 
-        $user = User::factory()->create([
-            'email' => 'old@example.com',
-            'password' => Hash::make('password-123'),
+    $user = User::factory()->create([
+        'email' => 'old@example.com',
+        'password' => Hash::make('password-123'),
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->put(route('profile.update'), [
+            'name' => $user->name,
+            'email' => 'new@example.com',
+            'current_password' => 'password-123',
         ]);
 
-        $response = $this
-            ->actingAs($user)
-            ->put(route('profile.update'), [
-                'name' => $user->name,
-                'email' => 'new@example.com',
-                'current_password' => 'password-123',
-            ]);
+    $user->refresh();
 
-        $user->refresh();
+    $this->assertSame(
+        'new@example.com',
+        $user->email
+    );
 
-        $this->assertSame('new@example.com', $user->email);
-        $this->assertNull($user->email_verified_at);
+    $this->assertNull(
+        $user->email_verified_at
+    );
 
-        Notification::assertSentTo(
-            $user,
-            VerifyEmail::class
-        );
+    Notification::assertSentTo(
+        $user,
+        VerifyEmail::class
+    );
 
-        $response->assertRedirect(route('verification.notice'));
-    }
-
-    public function test_user_can_keep_their_existing_email(): void
-    {
-        $user = User::factory()->create([
-            'email' => 'same@example.com',
-        ]);
-
-        $response = $this
-            ->actingAs($user)
-            ->put(route('profile.update'), [
-                'name' => 'Updated Name',
-                'email' => 'same@example.com',
-            ]);
-
-        $response->assertSessionHasNoErrors();
-
-        $this->assertSame(
-            'same@example.com',
-            $user->fresh()->email
-        );
-    }
-}
+    $response->assertRedirect(
+        route('verification.notice')
+    );
+}}

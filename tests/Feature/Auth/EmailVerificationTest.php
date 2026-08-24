@@ -106,4 +106,33 @@ class EmailVerificationTest extends TestCase
 
         $response->assertOk();
     }
-}
+public function test_old_verification_link_cannot_verify_user_after_email_changes(): void
+{
+    $user = User::factory()->unverified()->create([
+        'email' => 'old@example.com',
+    ]);
+
+    $oldVerificationUrl = URL::temporarySignedRoute(
+        'verification.verify',
+        now()->addMinutes(60),
+        [
+            'id' => $user->id,
+            'hash' => sha1('old@example.com'),
+        ]
+    );
+
+    $user->forceFill([
+        'email' => 'new@example.com',
+        'email_verified_at' => null,
+    ])->save();
+
+    $response = $this
+        ->actingAs($user)
+        ->get($oldVerificationUrl);
+
+    $response->assertForbidden();
+
+    $this->assertFalse(
+        $user->fresh()->hasVerifiedEmail()
+    );
+}}

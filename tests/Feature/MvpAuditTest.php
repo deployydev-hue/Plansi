@@ -36,8 +36,8 @@ class MvpAuditTest extends TestCase
             'email' => 'qa@example.test',
             'password' => 'secure-password',
             'password_confirmation' => 'secure-password',
-        ])->assertRedirect('/dashboard');
-
+      ])->assertRedirect(route('verification.notice'));
+      
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['email' => 'qa@example.test']);
 

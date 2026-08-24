@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-
+use Illuminate\Validation\Rules\Password;
 class ChangePasswordController extends Controller
 {
     public function edit()
@@ -18,13 +18,12 @@ class ChangePasswordController extends Controller
     {
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-                'different:current_password',
-            ],
+           'password' => [
+    'required',
+    'confirmed',
+    'different:current_password',
+    Password::defaults(),
+],
         ]);
 
         $request->user()->forceFill([

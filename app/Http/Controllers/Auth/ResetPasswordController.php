@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-
+use Illuminate\Validation\Rules\Password as PasswordRule;
 class ResetPasswordController extends Controller
 {
     public function create(Request $request, string $token)
@@ -25,8 +25,12 @@ class ResetPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', 'min:8'],
-        ]);
+          'password' => [
+    'required',
+    'confirmed',
+    PasswordRule::defaults(),
+],
+    ]);
 
         $status = Password::reset(
             $request->only(
@@ -45,12 +49,16 @@ class ResetPasswordController extends Controller
             }
         );
 
-        return $status === Password::PasswordReset
-            ? redirect()->route('login')->with('status', __($status))
-            : back()
-                ->withInput($request->only('email'))
-                ->withErrors([
-                    'email' => __($status),
-                ]);
+        if ($status === Password::PasswordReset) {
+            return redirect()
+                ->route('login')
+                ->with('status', __($status));
+        }
+
+        return back()
+            ->withInput($request->only('email'))
+            ->withErrors([
+                'email' => 'This password reset link is invalid or has expired.',
+            ]);
     }
 }
