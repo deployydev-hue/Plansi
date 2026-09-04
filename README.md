@@ -1,81 +1,606 @@
 # PLANSI
 
-**Plan what matters.**
+### Plan what matters.
 
-PLANSI is a calm productivity workspace for organizing tasks, priorities, categories, and deadlines. This Laravel web application provides the complete task-management MVP with authentication, dashboard reporting, categories, filtering, and sorting.
+PLANSI is a calm and focused productivity web application designed to help users organize tasks, priorities, categories, deadlines, and progress in one workspace.
 
-<p align="center"><img src="public/brand/logo.svg" width="290" alt="PLANSI — Plan what matters."></p>
+The project started as a task-management MVP and has evolved into a production-ready Laravel application with a complete authentication flow, account settings, security hardening, automated testing, and live deployment.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## Local demo workspace
+## Live Application
 
-The optional demo seeder creates one development-only account with 80 tasks and 10 categories, including overdue, due-today, upcoming, completed, uncategorized, and no-due-date examples. It refuses to run outside `local` or `testing` and is not called by the default database seeder.
+**Production:**  
+https://plansi-production.up.railway.app
 
-Set a temporary password in your shell and run:
+---
+
+## Current Release
+
+**PLANSI Web MVP v1.1**
+
+Status:
+
+- Stable
+- Deployed
+- Production tested
+- Authentication hardened
+- Feature development temporarily frozen after v1.1
+
+---
+
+## Core Features
+
+### Task Management
+
+Users can:
+
+- Create tasks
+- Edit tasks
+- Delete tasks
+- Mark tasks as completed or pending
+- Assign priorities
+- Assign categories
+- Set due dates
+- Search tasks
+- Filter tasks
+- Sort tasks
+
+Tasks remain scoped to the authenticated user.
+
+---
+
+### Categories
+
+Users can:
+
+- Create categories
+- Rename categories
+- Delete categories
+- Organize tasks using categories
+
+Category names are unique per user rather than globally.
+
+Deleting a category does not delete its tasks.
+
+---
+
+### Dashboard
+
+The dashboard provides a real-time overview of the user's workspace, including:
+
+- Total tasks
+- Pending tasks
+- Completed tasks
+- High-priority tasks
+- Tasks due today
+- Overdue tasks
+- Category count
+- Completion percentage
+- Recent tasks
+- Quick actions
+
+---
+
+## Authentication & Account Management
+
+PLANSI v1.1 includes a complete authentication experience.
+
+### Authentication
+
+- User registration
+- Login
+- Logout
+- Session regeneration after authentication
+- Secure session invalidation on logout
+- Login rate limiting
+
+### Email Verification
+
+- Verification required after registration
+- Signed verification URLs
+- Verification link resend
+- Resend throttling
+- Protected application routes require a verified email
+- Old verification links become invalid after an email change
+
+### Password Recovery
+
+- Forgot password
+- Secure password-reset tokens
+- Password-reset token expiration
+- Reset request throttling
+- Generic responses to reduce account enumeration
+- Invalid and expired reset links handled safely
+- Branded password-reset emails
+
+### Password Management
+
+Authenticated users can change their password by providing:
+
+- Current password
+- New password
+- Password confirmation
+
+A centralized password policy is shared between:
+
+- Registration
+- Password reset
+- Password change
+
+### Profile Settings
+
+Users can update:
+
+- Name
+- Email address
+
+Changing the email address:
+
+1. Requires the current password.
+2. Marks the new email as unverified.
+3. Sends a new verification email.
+4. Restricts access to verified application areas until verification succeeds.
+
+---
+
+## Security
+
+PLANSI v1.1 includes a dedicated authentication security review.
+
+Implemented protections include:
+
+- CSRF protection
+- Authentication middleware
+- Email verification middleware
+- Signed verification URLs
+- Login throttling
+- Password-reset throttling
+- Generic password-recovery responses
+- Secure password hashing
+- Password reset token expiration
+- Session regeneration after login
+- Session invalidation after logout
+- CSRF token regeneration after logout
+- Remember-token rotation after password reset/change
+- User-scoped task and category access
+- Current-password confirmation for sensitive account changes
+- Trusted proxy configuration for Railway
+- Trusted host validation
+- Secure production cookies
+- Production debug mode disabled
+- Production database-backed sessions
+
+---
+
+## Branded Transactional Emails
+
+PLANSI uses custom branded email templates for:
+
+- Email verification
+- Password reset
+
+Emails follow the PLANSI visual identity rather than Laravel's default notification design.
+
+Production email delivery currently uses SMTP.
+
+---
+
+## Technology Stack
+
+### Backend
+
+- PHP 8.4
+- Laravel 13
+- Eloquent ORM
+
+### Frontend
+
+- Blade
+- Tailwind CSS
+- Alpine.js
+- Vite
+
+### Database
+
+- MySQL
+
+### Authentication
+
+- Laravel session authentication
+- Laravel email verification
+- Laravel Password Broker
+
+### Deployment
+
+- Railway
+- HTTPS
+- Production environment variables
+- Database-backed production sessions
+- Automatic production migrations through the deployment process
+
+---
+
+## Application Structure
+
+Main application areas include:
+
+```text
+PLANSI
+│
+├── Authentication
+│   ├── Register
+│   ├── Login
+│   ├── Logout
+│   ├── Email Verification
+│   ├── Forgot Password
+│   └── Reset Password
+│
+├── Dashboard
+│
+├── Tasks
+│   ├── Create
+│   ├── Edit
+│   ├── Delete
+│   ├── Search
+│   ├── Filter
+│   ├── Sort
+│   └── Toggle Completion
+│
+├── Categories
+│   ├── Create
+│   ├── Update
+│   └── Delete
+│
+└── Account Settings
+    ├── Profile
+    └── Password & Security
+```
+
+---
+
+## Due-Date Logic
+
+Pending tasks are separated into mutually exclusive time buckets.
+
+### Overdue
+
+A pending task with a due date before the current calendar day.
+
+### Due Today
+
+A pending task due at any time during the current calendar day.
+
+### Upcoming
+
+A pending task due after today.
+
+Completed tasks are excluded from these urgency buckets.
+
+The application timezone can be configured using:
+
+```env
+APP_TIMEZONE=
+```
+
+---
+
+## Automated Testing
+
+PLANSI contains feature and security-focused automated tests covering areas such as:
+
+### Authentication
+
+- Registration
+- Login throttling
+- Email verification
+- Verification notification resend
+- Invalid verification hashes
+- Old verification links after email changes
+- Forgot-password requests
+- Generic recovery responses
+- Valid password resets
+- Invalid reset tokens
+- Expired reset tokens
+- Password confirmation
+- Authenticated password changes
+- Current-password validation
+- Profile updates
+- Email uniqueness
+- Email re-verification
+
+### Application
+
+- Guest protection
+- Task validation
+- Category validation
+- User ownership boundaries
+- Task/category isolation
+- Category deletion behavior
+- Due-date calculations
+- Filtering and sorting
+- Dashboard statistics
+- Invalid filters
+- Demo workspace behavior
+- Custom production error pages
+
+Run the complete test suite with:
+
+```bash
+php artisan test
+```
+
+The production release was deployed only after the full test suite passed.
+
+---
+
+## Local Installation
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd smart-todo
+```
+
+### 2. Install PHP dependencies
+
+```bash
+composer install
+```
+
+### 3. Install frontend dependencies
+
+```bash
+npm install
+```
+
+### 4. Create the environment file
+
+```bash
+cp .env.example .env
+```
+
+On Windows, you can copy `.env.example` manually and rename it to `.env`.
+
+### 5. Generate the application key
+
+```bash
+php artisan key:generate
+```
+
+### 6. Configure the database
+
+Update the database values in `.env`.
+
+Example:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=smart_todo
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 7. Run migrations
+
+```bash
+php artisan migrate
+```
+
+### 8. Build frontend assets
+
+For development:
+
+```bash
+npm run dev
+```
+
+Or create a production build:
+
+```bash
+npm run build
+```
+
+### 9. Start Laravel
+
+```bash
+php artisan serve
+```
+
+---
+
+## Local Email Development
+
+Production uses real SMTP delivery.
+
+For local development, email can instead be written to Laravel logs:
+
+```env
+MAIL_MAILER=log
+```
+
+Generated email content can then be inspected in:
+
+```text
+storage/logs/laravel.log
+```
+
+Never commit SMTP credentials, application passwords, database passwords, or other secrets to Git.
+
+---
+
+## Local Demo Workspace
+
+PLANSI includes an optional development-only demo workspace.
+
+The demo seeder generates:
+
+- 1 demo account
+- 10 categories
+- 80 varied tasks
+
+The generated workspace includes examples of:
+
+- Pending tasks
+- Completed tasks
+- Overdue tasks
+- Due-today tasks
+- Upcoming tasks
+- Uncategorized tasks
+- Tasks without due dates
+- Different priority levels
+
+The seeder refuses to run outside the `local` or `testing` environments and is not executed by the default database seeder.
+
+Set a temporary password:
 
 ```powershell
 $env:SMART_TODO_DEMO_PASSWORD = '<choose-a-local-password>'
 php artisan db:seed --class=DemoWorkspaceSeeder
 ```
 
-Sign in with `demo@smart-todo.test` and the password you supplied.
+Then sign in using:
 
-## Due dates and timezone
-
-The MVP uses mutually exclusive pending-task buckets: **Overdue** is before the current calendar day, **Due Today** is any time on the current day, and **Upcoming** starts tomorrow. Completed tasks are excluded from all three urgency buckets. Set `APP_TIMEZONE` to the deployment's business timezone; UTC is the safe default. Per-user timezone preferences are a post-MVP enhancement.
-
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+demo@smart-todo.test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+and the password you supplied.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Production Configuration
 
-## Code of Conduct
+Production uses environment-specific configuration.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Important production settings include:
 
-## Security Vulnerabilities
+```env
+APP_ENV=production
+APP_DEBUG=false
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+SESSION_DRIVER=database
+SESSION_SECURE_COOKIE=true
+SESSION_HTTP_ONLY=true
+SESSION_SAME_SITE=lax
+```
 
-## License
+Secrets and credentials are managed using Railway environment variables and are never committed to the repository.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Database migrations are executed during deployment using:
+
+```bash
+php artisan migrate --force
+```
+
+---
+
+## Screenshots
+
+Screenshots for the current production release can be added here.
+
+Recommended screens:
+
+1. Dashboard
+2. Tasks
+3. Create/Edit Task
+4. Categories
+5. Account Settings
+6. Password & Security
+7. Email Verification
+8. Mobile responsive view
+
+Example structure:
+
+```text
+docs/
+└── screenshots/
+    ├── dashboard.png
+    ├── tasks.png
+    ├── categories.png
+    ├── profile-settings.png
+    └── mobile-dashboard.png
+```
+
+Then they can be displayed in this README using:
+
+```markdown
+![PLANSI Dashboard](docs/screenshots/dashboard.png)
+```
+
+---
+
+## Release History
+
+### v1.1.0 — Advanced Authentication & Account Experience
+
+Added:
+
+- Email verification
+- Forgot password
+- Password reset
+- Authenticated password change
+- Profile settings
+- Email-change re-verification
+- Centralized password policy
+- Authentication security hardening
+- Generic password-recovery responses
+- Branded authentication emails
+- Production database sessions
+- Trusted hosts
+- Production mail delivery
+
+Also completed:
+
+- Full automated regression testing
+- Railway production migration
+- Production smoke testing
+
+### v1.0 — Core Web MVP
+
+Included:
+
+- Authentication
+- Dashboard
+- Tasks CRUD
+- Categories CRUD
+- Search
+- Filters
+- Sorting
+- Priorities
+- Due dates
+- Completion tracking
+- Responsive user interface
+- User ownership protection
+- Automated MVP audit tests
+
+---
+
+## Future Direction
+
+PLANSI is intentionally paused after v1.1 while the current product is used as a stable production release.
+
+Potential future enhancements may include:
+
+- Calendar integration
+- Drag-and-drop task organization
+- Improved reminders
+- Additional productivity views
+- Mobile application
+- API support
+- Extended localization
+
+These features are not part of the current release roadmap and are intentionally deferred.
+
+---
+
+## Project Status
+
+**PLANSI Web MVP v1.1 is complete and deployed.**
+
+The current release is treated as a stable product milestone rather than an unfinished prototype.
+
+> Plan what matters.

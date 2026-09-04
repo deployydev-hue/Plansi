@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,467 +7,152 @@
 
     <title>@yield('title', 'PLANSI')</title>
 
-    <link
-        rel="icon"
-        href="{{ asset('brand/favicon.svg') }}"
-        type="image/svg+xml"
-    >
+    <link rel="icon" href="{{ asset('brand/favicon.svg') }}" type="image/svg+xml">
 
     @vite([
         'resources/css/app.css',
-        'resources/js/app.js'
+        'resources/js/app.js',
     ])
 </head>
 
-<body class="bg-background text-text-primary">
+<body x-data="appShell" class="bg-background text-text-primary">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    {{-- Header --}}
-    <header
-        x-data="{ mobileMenuOpen: false }"
-        @keydown.escape.window="mobileMenuOpen = false"
-        class="
-            sticky
-            top-0
-            z-50
-            border-b
-            border-border
-            bg-background/95
-            backdrop-blur
-        "
-    >
-
-        <div
-            class="
-                mx-auto
-                flex
-                max-w-7xl
-                items-center
-                justify-between
-                gap-4
-                px-4
-                py-3
-                sm:px-6
-                lg:py-4
-            "
+    <div class="min-h-screen lg:flex">
+        {{-- Persistent desktop sidebar --}}
+        <aside
+            class="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-border bg-[#f2f3ee] lg:flex lg:flex-col"
+            aria-label="Application sidebar"
         >
-
-            {{-- Logo --}}
-            <a
-                href="{{ route('dashboard') }}"
-                class="
-                    flex
-                    min-w-0
-                    items-center
-                    gap-2.5
-                    font-semibold
-                    text-primary
-                "
-                aria-label="PLANSI dashboard"
-            >
-
-                <img
-                    src="{{ asset('brand/mark.svg') }}"
-                    alt=""
-                    class="
-                        h-10
-                        w-10
-                        shrink-0
-                    "
+            <div class="flex h-full min-h-0 flex-col px-4 py-5">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="mb-7 flex items-center gap-3 px-2 text-primary"
+                    aria-label="PLANSI Today"
                 >
+                    <img src="{{ asset('brand/mark.svg') }}" alt="" class="h-10 w-10">
+                    <span>
+                        <span class="block text-base font-bold tracking-[0.18em]">PLANSI</span>
+                        <span class="block text-[0.6875rem] font-medium text-muted">Plan what matters.</span>
+                    </span>
+                </a>
 
-                <span
-                    class="
-                        truncate
-                        text-base
-                        font-bold
-                        tracking-[0.16em]
-                        sm:text-lg
-                    "
-                >
-                    PLANSI
-                </span>
+                <x-app-navigation />
+            </div>
+        </aside>
 
-            </a>
-
-
-            {{-- Desktop Navigation --}}
-            <nav
-                class="
-                    hidden
-                    items-center
-                    gap-1
-                    lg:flex
-                "
-                aria-label="Primary navigation"
-            >
-
-               @foreach ([
-    [
-        ['dashboard'],
-        'Dashboard',
-        route('dashboard')
-    ],
-    [
-        ['tasks.*'],
-        'Tasks',
-        route('tasks.index')
-    ],
-    [
-        ['categories.*'],
-        'Categories',
-        route('categories.index')
-    ],
-    [
-        ['profile.*', 'password.edit'],
-        'Settings',
-        route('profile.edit')
-    ],
-] as [$patterns, $label, $url])
-
-    @php
-        $isActive = request()->routeIs(...$patterns);
-    @endphp
-
-    <a
-        href="{{ $url }}"
-        @class([
-            'rounded-xl px-4 py-2 text-sm font-medium transition hover:bg-mint-soft hover:text-primary',
-            'bg-mint-soft text-primary' => $isActive,
-            'text-text-secondary' => ! $isActive,
-        ])
-        @if ($isActive)
-            aria-current="page"
-        @endif
-    >
-        {{ $label }}
-    </a>
-
-@endforeach
-
-            </nav>
-
-
-            {{-- Desktop User --}}
-            <div
-                class="
-                    hidden
-                    min-w-0
-                    items-center
-                    gap-4
-                    lg:flex
-                "
-            >
-
-                <div
-                    class="
-                        min-w-0
-                        max-w-52
-                        text-right
-                    "
-                >
-
-                    <p
-                        class="
-                            truncate
-                            text-sm
-                            font-medium
-                            text-text-primary
-                        "
+        <div class="min-w-0 flex-1">
+            {{-- Compact responsive-web header --}}
+            <header class="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur lg:hidden">
+                <div class="flex min-h-[4.25rem] items-center justify-between gap-4 px-4 sm:px-6">
+                    <a
+                        href="{{ route('dashboard') }}"
+                        class="flex min-w-0 items-center gap-2.5 text-primary"
+                        aria-label="PLANSI Today"
                     >
-                        {{ auth()->user()->name }}
-                    </p>
+                        <img src="{{ asset('brand/mark.svg') }}" alt="" class="h-9 w-9 shrink-0">
+                        <span class="truncate text-base font-bold tracking-[0.16em]">PLANSI</span>
+                    </a>
 
-                    <p
-                        class="
-                            text-xs
-                            text-text-secondary
-                        "
-                    >
-                        My workspace
-                    </p>
+                    <div class="flex items-center gap-2">
+                        @unless (request()->routeIs('tasks.index', 'tasks.create'))
+                            <a
+                                href="{{ route('tasks.create') }}"
+                                class="btn btn-primary min-h-10 px-3 sm:px-4"
+                            >
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                </svg>
+                                <span class="hidden sm:inline">Add task</span>
+                                <span class="sr-only sm:hidden">Add task</span>
+                            </a>
+                        @endunless
 
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-icon min-h-10"
+                            @click="openDrawer"
+                            :aria-expanded="drawerOpen.toString()"
+                            aria-controls="mobile-navigation-drawer"
+                            :aria-label="drawerOpen ? 'Close navigation menu' : 'Open navigation menu'"
+                        >
+                            <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+            </header>
 
+            {{-- Existing page contents render unchanged inside this workspace. --}}
+            <main id="main-content" tabindex="-1">
+                <div class="mx-auto w-full max-w-[1440px] px-4 py-6 sm:px-6 sm:py-8 xl:px-10 xl:py-10">
+                    <x-flash-stack />
+                    @yield('content')
+                </div>
+            </main>
+        </div>
+    </div>
 
-                {{-- Logout --}}
-                <form
-                    method="POST"
-                    action="{{ route('logout') }}"
+    {{-- Mobile and tablet navigation drawer --}}
+    <div
+        x-cloak
+        x-show="drawerOpen"
+        class="fixed inset-0 z-[70] lg:hidden"
+        @keydown.escape.window="closeDrawer"
+    >
+        <button
+            type="button"
+            class="absolute inset-0 bg-text-primary/45"
+            aria-label="Close navigation menu"
+            tabindex="-1"
+            @click="closeDrawer"
+            x-transition.opacity.duration.240ms
+        ></button>
+
+        <aside
+            id="mobile-navigation-drawer"
+            x-ref="drawer"
+            x-show="drawerOpen"
+            x-transition:enter="transition duration-[240ms] ease-out"
+            x-transition:enter-start="-translate-x-full"
+            x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition duration-180 ease-in"
+            x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="-translate-x-full"
+            @keydown.tab="trapDrawerFocus($event)"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-navigation-title"
+            class="relative flex h-full w-[min(21rem,88vw)] flex-col border-r border-border bg-[#f2f3ee] shadow-lg"
+        >
+            <div class="flex min-h-[4.25rem] items-center justify-between border-b border-border px-4">
+                <a
+                    href="{{ route('dashboard') }}"
+                    class="flex min-w-0 items-center gap-2.5 text-primary"
+                    @click="closeDrawer(false)"
                 >
+                    <img src="{{ asset('brand/mark.svg') }}" alt="" class="h-9 w-9">
+                    <span id="mobile-navigation-title" class="text-base font-bold tracking-[0.16em]">PLANSI</span>
+                </a>
 
-                    @csrf
-
-                    <button
-                        type="submit"
-                        class="
-                            rounded-xl
-                            border
-                            border-border
-                            bg-white
-                            px-4
-                            py-2
-                            text-sm
-                            font-medium
-                            text-text-secondary
-                            transition
-                            hover:border-danger
-                            hover:text-danger
-                        "
-                    >
-                        Logout
-                    </button>
-
-                </form>
-
+                <button
+                    x-ref="drawerClose"
+                    type="button"
+                    class="btn btn-secondary btn-icon"
+                    aria-label="Close navigation menu"
+                    @click="closeDrawer"
+                >
+                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    </svg>
+                </button>
             </div>
 
-
-            {{-- Mobile Menu Button --}}
-            <button
-                type="button"
-
-                class="
-                    inline-flex
-                    h-11
-                    w-11
-                    shrink-0
-                    items-center
-                    justify-center
-                    rounded-xl
-                    border
-                    border-border
-                    bg-white
-                    text-primary
-                    transition
-                    hover:bg-mint-soft
-                    focus:outline-none
-                    focus:ring-4
-                    focus:ring-mint
-                    lg:hidden
-                "
-
-                @click="
-                    mobileMenuOpen = ! mobileMenuOpen
-                "
-
-                :aria-expanded="
-                    mobileMenuOpen.toString()
-                "
-
-                aria-controls="mobile-navigation"
-                aria-label="Toggle navigation menu"
-            >
-
-                {{-- Open Icon --}}
-                <svg
-                    x-show="! mobileMenuOpen"
-                    aria-hidden="true"
-                    class="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                >
-                    <path d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-
-
-                {{-- Close Icon --}}
-                <svg
-                    x-cloak
-                    x-show="mobileMenuOpen"
-                    aria-hidden="true"
-                    class="h-5 w-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                >
-                    <path d="M6 6l12 12M18 6L6 18" />
-                </svg>
-
-            </button>
-
-        </div>
-
-
-        {{-- Mobile Navigation --}}
-        <div
-            id="mobile-navigation"
-
-            x-cloak
-            x-show="mobileMenuOpen"
-
-            x-transition.opacity.duration.150ms
-
-            @click.outside="
-                mobileMenuOpen = false
-            "
-
-            class="
-                border-t
-                border-border
-                bg-surface
-                px-4
-                py-4
-                shadow-lg
-                sm:px-6
-                lg:hidden
-            "
-        >
-
-            <nav
-    class="
-        mx-auto
-        max-w-7xl
-        space-y-1
-    "
-    aria-label="Mobile navigation"
->
-
-    @foreach ([
-        [
-            ['dashboard'],
-            'Dashboard',
-            route('dashboard')
-        ],
-        [
-            ['tasks.*'],
-            'Tasks',
-            route('tasks.index')
-        ],
-        [
-            ['categories.*'],
-            'Categories',
-            route('categories.index')
-        ],
-        [
-            ['profile.*', 'password.edit'],
-            'Settings',
-            route('profile.edit')
-        ],
-    ] as [$patterns, $label, $url])
-
-        @php
-            $isActive = request()->routeIs(...$patterns);
-        @endphp
-
-        <a
-            href="{{ $url }}"
-            @click="mobileMenuOpen = false"
-            @class([
-                'block rounded-xl px-4 py-3 text-sm font-medium transition hover:bg-mint-soft hover:text-primary',
-                'bg-mint-soft text-primary' => $isActive,
-                'text-text-secondary' => ! $isActive,
-            ])
-            @if ($isActive)
-                aria-current="page"
-            @endif
-        >
-            {{ $label }}
-        </a>
-
-    @endforeach
-
-</nav>
-
-
-            {{-- Mobile User Info --}}
-            <div
-                class="
-                    mx-auto
-                    mt-4
-                    flex
-                    max-w-7xl
-                    items-center
-                    justify-between
-                    gap-4
-                    border-t
-                    border-border
-                    pt-4
-                "
-            >
-
-                <div class="min-w-0">
-
-                    <p
-                        class="
-                            truncate
-                            text-sm
-                            font-medium
-                            text-text-primary
-                        "
-                    >
-                        {{ auth()->user()->name }}
-                    </p>
-
-                    <p
-                        class="
-                            truncate
-                            text-xs
-                            text-text-secondary
-                        "
-                    >
-                        {{ auth()->user()->email }}
-                    </p>
-
-                </div>
-
-
-                {{-- Mobile Logout --}}
-                <form
-                    method="POST"
-                    action="{{ route('logout') }}"
-                    class="shrink-0"
-                >
-
-                    @csrf
-
-                    <button
-                        type="submit"
-                        class="
-                            rounded-xl
-                            border
-                            border-danger/20
-                            bg-danger/5
-                            px-4
-                            py-2.5
-                            text-sm
-                            font-medium
-                            text-danger
-                            transition
-                            hover:bg-danger/10
-                        "
-                    >
-                        Logout
-                    </button>
-
-                </form>
-
+            <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-5">
+                <x-app-navigation mobile />
             </div>
-
-        </div>
-
-    </header>
-
-
-    {{-- Main Content --}}
-    <main
-        class="
-            mx-auto
-            min-h-[calc(100vh-69px)]
-            max-w-7xl
-            px-4
-            py-6
-            sm:px-6
-            sm:py-8
-        "
-    >
-        @yield('content')
-    </main>
-
+        </aside>
+    </div>
 </body>
-
 </html>

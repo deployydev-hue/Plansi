@@ -1,1256 +1,330 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard | PLANSI')
+@section('title', 'Today | PLANSI')
 
 @section('content')
+    <header class="mb-7 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
+        <div class="min-w-0">
+            <p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Today</p>
 
-
-    {{-- Welcome Header --}}
-    <section
-        class="
-            mb-8
-            flex
-            flex-col
-            gap-5
-            lg:flex-row
-            lg:items-end
-            lg:justify-between
-        "
-    >
-
-        <div>
-
-            <p
-                class="
-                    mb-1
-                    text-sm
-                    font-medium
-                    text-primary
-                "
-            >
-                Dashboard
-            </p>
-
-
-            <h1
-                class="
-                    text-3xl
-                    font-semibold
-                    tracking-tight
-                    text-text-primary
-                    sm:text-4xl
-                "
-            >
-                Welcome back,
-                {{ auth()->user()->name }}
+            <h1 class="type-h1 mt-2 break-words">
+                {{ $greeting }}{{ $greetingName ? ', '.$greetingName : '' }}.
             </h1>
 
-
-            <p
-                class="
-                    mt-2
-                    max-w-2xl
-                    text-sm
-                    leading-6
-                    text-text-secondary
-                "
-            >
-                Here is a quick look at your tasks
-                and what needs your attention today.
-            </p>
-
+            <p class="mt-2 text-base text-text-secondary">Here’s what matters today.</p>
         </div>
 
-
-        {{-- Primary Action --}}
-        <a
-            href="{{ route('tasks.create') }}"
-            class="
-                inline-flex
-                items-center
-                justify-center
-                gap-2
-                rounded-2xl
-                bg-primary
-                px-5
-                py-3
-                text-sm
-                font-semibold
-                text-white
-                shadow-sm
-                transition
-                hover:bg-primary-hover
-            "
+        <time
+            datetime="{{ now()->toDateString() }}"
+            class="shrink-0 text-sm font-medium text-muted"
         >
+            {{ now()->format('l, F j') }}
+        </time>
+    </header>
 
-            <span class="text-lg leading-none">
-                +
+    @if ($totalTasks === 0)
+        <section
+            aria-labelledby="new-workspace-title"
+            class="flex min-h-[24rem] flex-col items-center justify-center rounded-2xl border border-dashed border-control-border bg-surface px-6 py-12 text-center"
+        >
+            <span
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-mint-soft text-primary"
+                aria-hidden="true"
+            >
+                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
             </span>
 
-            Create Task
-
-        </a>
-
-    </section>
-
-
-
-    {{-- Main Overview --}}
-    <section class="mb-8">
-
-        <div class="mb-5">
-
-            <h2
-                class="
-                    text-lg
-                    font-semibold
-                    text-text-primary
-                "
-            >
-                Overview
-            </h2>
-
-            <p
-                class="
-                    mt-1
-                    text-sm
-                    text-text-secondary
-                "
-            >
-                Your workspace at a glance.
+            <h2 id="new-workspace-title" class="type-h2 mt-5">Start with what matters.</h2>
+            <p class="mt-3 max-w-md text-base leading-7 text-text-secondary">
+                Add your first task and PLANSI will help keep your day clear.
             </p>
 
-        </div>
-
-
-
-        {{-- Statistics Grid --}}
-        <div
-            class="
-                grid
-                grid-cols-1
-                gap-4
-                sm:grid-cols-2
-                xl:grid-cols-4
-            "
-        >
-
-
-            {{-- Total Tasks --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
+            <a href="{{ route('tasks.create') }}" class="btn btn-primary mt-6">
+                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Add your first task
+            </a>
+        </section>
+    @else
+        <div class="grid grid-cols-1 gap-6 min-[1360px]:grid-cols-12 min-[1360px]:items-start">
+            {{-- Focus --}}
+            <section
+                aria-labelledby="focus-title"
+                class="overflow-hidden rounded-2xl border border-primary/20 bg-mint-soft/60 min-[1360px]:col-span-8 min-[1360px]:row-start-1"
             >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-mint-soft
-                        text-lg
-                        font-semibold
-                        text-primary
-                    "
-                >
-                    ✓
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Total Tasks
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-text-primary
-                    "
-                >
-                    {{ $totalTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Pending --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-yellow-soft
-                        text-lg
-                    "
-                >
-                    ◷
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Pending
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-text-primary
-                    "
-                >
-                    {{ $pendingTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Completed --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-mint-soft
-                        text-lg
-                        font-semibold
-                        text-success
-                    "
-                >
-                    ✓
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Completed
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-success
-                    "
-                >
-                    {{ $completedTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- High Priority --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-danger/10
-                        text-lg
-                        font-semibold
-                        text-danger
-                    "
-                >
-                    !
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    High Priority
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-danger
-                    "
-                >
-                    {{ $highPriorityTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Due Today --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-yellow-soft
-                        text-lg
-                    "
-                >
-                    ◉
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Due Today
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-text-primary
-                    "
-                >
-                    {{ $dueTodayTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Overdue --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-danger/15
-                    bg-danger/5
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-danger/10
-                        text-lg
-                        font-semibold
-                        text-danger
-                    "
-                >
-                    !
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Overdue
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-danger
-                    "
-                >
-                    {{ $overdueTasks }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Categories --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-                <div
-                    class="
-                        mb-5
-                        flex
-                        h-11
-                        w-11
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-mint-soft
-                        text-lg
-                        font-semibold
-                        text-primary
-                    "
-                >
-                    #
-                </div>
-
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-text-secondary
-                    "
-                >
-                    Categories
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-3xl
-                        font-semibold
-                        tracking-tight
-                        text-text-primary
-                    "
-                >
-                    {{ $categoriesCount }}
-                </p>
-
-            </article>
-
-
-
-            {{-- Progress --}}
-            <article
-                class="
-                    rounded-3xl
-                    border
-                    border-primary/10
-                    bg-primary
-                    p-5
-                    text-white
-                    shadow-sm
-                "
-            >
-
-                <p
-                    class="
-                        text-sm
-                        font-medium
-                        text-white/70
-                    "
-                >
-                    Completion
-                </p>
-
-
-                <div
-                    class="
-                        mt-2
-                        flex
-                        items-end
-                        justify-between
-                        gap-3
-                    "
-                >
-
-                    <p
-                        class="
-                            text-3xl
-                            font-semibold
-                            tracking-tight
-                        "
-                    >
-                        {{ $completionPercentage }}%
-                    </p>
-
-
-                    <span
-                        class="
-                            text-xs
-                            font-medium
-                            text-white/70
-                        "
-                    >
-                        {{ $completedTasks }}
-                        / {{ $totalTasks }}
-                    </span>
-
-                </div>
-
-
-                {{-- Progress Bar --}}
-                <div
-                    class="
-                        mt-5
-                        h-2
-                        overflow-hidden
-                        rounded-full
-                        bg-white/20
-                    "
-                >
-
-                    <div
-                        class="
-                            h-full
-                            rounded-full
-                            bg-mint
-                            transition-all
-                            duration-500
-                        "
-                        style="width: {{ $completionPercentage }}%"
-                    ></div>
-
-                </div>
-
-            </article>
-
-        </div>
-
-    </section>
-
-
-
-    {{-- Lower Dashboard --}}
-    <section
-        class="
-            grid
-            grid-cols-1
-            gap-6
-            xl:grid-cols-[1fr_340px]
-        "
-    >
-
-
-        {{-- Recent Tasks --}}
-        <div>
-
-            <div
-                class="
-                    mb-5
-                    flex
-                    items-end
-                    justify-between
-                    gap-4
-                "
-            >
-
-                <div>
-
-                    <h2
-                        class="
-                            text-lg
-                            font-semibold
-                            text-text-primary
-                        "
-                    >
-                        Recent Tasks
-                    </h2>
-
-
-                    <p
-                        class="
-                            mt-1
-                            text-sm
-                            text-text-secondary
-                        "
-                    >
-                        Your latest activity.
-                    </p>
-
-                </div>
-
-
-                <a
-                    href="{{ route('tasks.index') }}"
-                    class="
-                        text-sm
-                        font-semibold
-                        text-primary
-                        transition
-                        hover:text-primary-hover
-                    "
-                >
-                    View all →
-                </a>
-
-            </div>
-
-
-
-            @if ($recentTasks->isEmpty())
-
-                {{-- Empty --}}
-                <div
-                    class="
-                        flex
-                        min-h-80
-                        flex-col
-                        items-center
-                        justify-center
-                        rounded-3xl
-                        border
-                        border-dashed
-                        border-border
-                        bg-surface
-                        px-6
-                        py-12
-                        text-center
-                    "
-                >
-
-                    <div
-                        class="
-                            mb-5
-                            flex
-                            h-16
-                            w-16
-                            items-center
-                            justify-center
-                            rounded-2xl
-                            bg-mint-soft
-                            text-2xl
-                            text-primary
-                        "
-                    >
-                        ✓
+                <div class="p-5 sm:p-6">
+                    <div class="flex items-center justify-between gap-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Focus</p>
+                        <span class="text-xs font-medium text-muted">Next priority</span>
                     </div>
 
+                    @if ($focusTask)
+                        @php
+                            $focusPriorityClasses = match ($focusTask->priority) {
+                                'high' => 'border-danger/20 bg-danger-soft text-danger',
+                                'medium' => 'border-warning/20 bg-warning-soft text-warning',
+                                default => 'border-success/20 bg-success-soft text-success',
+                            };
 
-                    <h3
-                        class="
-                            text-lg
-                            font-semibold
-                            text-text-primary
-                        "
-                    >
-                        Your workspace is empty
-                    </h3>
+                            if ($focusTask->due_at->isBefore(today())) {
+                                $focusOverdueDays = max(1, (int) $focusTask->due_at->copy()->startOfDay()->diffInDays(today()));
+                                $focusDueLabel = 'Overdue by '.$focusOverdueDays.' '.($focusOverdueDays === 1 ? 'day' : 'days');
+                                $focusDueClasses = 'text-danger';
+                            } elseif ($focusTask->due_at->isToday()) {
+                                $focusDueLabel = 'Due today · '.$focusTask->due_at->format('g:i A');
+                                $focusDueClasses = 'text-warning';
+                            } elseif ($focusTask->due_at->isTomorrow()) {
+                                $focusDueLabel = 'Due tomorrow · '.$focusTask->due_at->format('g:i A');
+                                $focusDueClasses = 'text-text-secondary';
+                            } else {
+                                $focusDueLabel = 'Due '.$focusTask->due_at->format('M j · g:i A');
+                                $focusDueClasses = 'text-text-secondary';
+                            }
+                        @endphp
 
+                        <h2 id="focus-title" class="mt-4 max-w-3xl break-words text-2xl font-semibold leading-8 tracking-tight text-text-primary sm:text-[1.75rem] sm:leading-9">
+                            {{ $focusTask->title }}
+                        </h2>
 
-                    <p
-                        class="
-                            mt-2
-                            max-w-sm
-                            text-sm
-                            leading-6
-                            text-text-secondary
-                        "
-                    >
-                        Create your first task and start
-                        organizing your work.
-                    </p>
+                        <div class="mt-4 flex flex-wrap items-center gap-2">
+                            @if ($focusTask->category)
+                                <span class="rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-xs font-medium text-text-secondary">
+                                    {{ $focusTask->category->name }}
+                                </span>
+                            @endif
 
+                            <span class="rounded-lg border px-2.5 py-1.5 text-xs font-semibold {{ $focusPriorityClasses }}">
+                                {{ ucfirst($focusTask->priority) }} priority
+                            </span>
 
-                    <a
-                        href="{{ route('tasks.create') }}"
-                        class="
-                            mt-6
-                            rounded-2xl
-                            bg-primary
-                            px-5
-                            py-3
-                            text-sm
-                            font-semibold
-                            text-white
-                            transition
-                            hover:bg-primary-hover
-                        "
-                    >
-                        Create First Task
-                    </a>
-
-                </div>
-
-
-            @else
-
-                <div
-                    class="
-                        overflow-hidden
-                        rounded-3xl
-                        border
-                        border-border
-                        bg-surface
-                        shadow-sm
-                    "
-                >
-
-                    @foreach ($recentTasks as $task)
-
-                        <div
-                            class="
-                                flex
-                                flex-col
-                                gap-4
-                                border-b
-                                border-border
-                                p-5
-                                last:border-b-0
-                                sm:flex-row
-                                sm:items-center
-                                sm:justify-between
-                            "
-                        >
-
-                            {{-- Task --}}
-                            <div
-                                class="
-                                    flex
-                                    min-w-0
-                                    items-start
-                                    gap-4
-                                "
-                            >
-
-                                {{-- Status Indicator --}}
-                                <div
-                                    class="
-                                        mt-1
-                                        flex
-                                        h-9
-                                        w-9
-                                        shrink-0
-                                        items-center
-                                        justify-center
-                                        rounded-xl
-
-                                        {{ $task->status === 'completed'
-                                            ? 'bg-mint-soft text-success'
-                                            : 'bg-yellow-soft text-text-primary'
-                                        }}
-                                    "
-                                >
-
-                                    {{ $task->status === 'completed'
-                                        ? '✓'
-                                        : '•'
-                                    }}
-
-                                </div>
-
-
-                                <div class="min-w-0">
-
-                                    <h3
-                                        class="
-                                            truncate
-                                            font-semibold
-                                            text-text-primary
-
-                                            {{ $task->status === 'completed'
-                                                ? 'line-through opacity-60'
-                                                : ''
-                                            }}
-                                        "
-                                    >
-                                        {{ $task->title }}
-                                    </h3>
-
-
-                                    <div
-                                        class="
-                                            mt-2
-                                            flex
-                                            flex-wrap
-                                            items-center
-                                            gap-2
-                                            text-xs
-                                            text-text-secondary
-                                        "
-                                    >
-
-                                        {{-- Category --}}
-                                        <span
-                                            class="
-                                                rounded-full
-                                                bg-background
-                                                px-2.5
-                                                py-1
-                                            "
-                                        >
-                                            {{ $task->category?->name ?? 'No Category' }}
-                                        </span>
-
-
-                                        {{-- Priority --}}
-                                        @if ($task->priority === 'high')
-
-                                            <span
-                                                class="
-                                                    rounded-full
-                                                    bg-danger/10
-                                                    px-2.5
-                                                    py-1
-                                                    font-medium
-                                                    text-danger
-                                                "
-                                            >
-                                                High
-                                            </span>
-
-                                        @elseif ($task->priority === 'medium')
-
-                                            <span
-                                                class="
-                                                    rounded-full
-                                                    bg-yellow-soft
-                                                    px-2.5
-                                                    py-1
-                                                    font-medium
-                                                    text-text-primary
-                                                "
-                                            >
-                                                Medium
-                                            </span>
-
-                                        @else
-
-                                            <span
-                                                class="
-                                                    rounded-full
-                                                    bg-mint-soft
-                                                    px-2.5
-                                                    py-1
-                                                    font-medium
-                                                    text-success
-                                                "
-                                            >
-                                                Low
-                                            </span>
-
-                                        @endif
-
-
-                                        {{-- Due --}}
-                                        @if ($task->due_at)
-
-                                            <span>
-                                                {{ $task->due_at->format('M d · H:i') }}
-                                            </span>
-
-                                        @endif
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-                            {{-- Edit --}}
-                            <a
-                                href="{{ route('tasks.edit', $task) }}"
-                                class="
-                                    inline-flex
-                                    shrink-0
-                                    items-center
-                                    justify-center
-                                    rounded-xl
-                                    border
-                                    border-border
-                                    bg-white
-                                    px-4
-                                    py-2
-                                    text-sm
-                                    font-medium
-                                    text-text-secondary
-                                    transition
-                                    hover:border-primary
-                                    hover:text-primary
-                                "
-                            >
-                                Edit
-                            </a>
-
+                            <span class="px-1 text-xs font-semibold {{ $focusDueClasses }}">
+                                {{ $focusDueLabel }}
+                            </span>
                         </div>
 
-                    @endforeach
+                        <a href="{{ route('tasks.edit', $focusTask) }}" class="btn btn-secondary mt-6">
+                            Edit task
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="m8 5 5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </a>
+                    @else
+                        <h2 id="focus-title" class="type-h3 mt-4">You’re clear for now.</h2>
+                        <p class="mt-2 text-sm leading-6 text-text-secondary">
+                            Nothing urgent needs your attention.
+                        </p>
+                        <a
+                            href="{{ route('tasks.index', ['due_date' => 'upcoming', 'status' => 'pending']) }}"
+                            class="btn btn-secondary mt-5"
+                        >
+                            View upcoming tasks
+                        </a>
+                    @endif
+                </div>
+            </section>
 
+            {{-- Today --}}
+            <section
+                aria-labelledby="today-title"
+                class="overflow-hidden rounded-2xl border border-border bg-surface min-[1360px]:col-span-8 min-[1360px]:row-start-2"
+            >
+                <div class="flex items-end justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
+                    <div>
+                        <h2 id="today-title" class="type-h3">Today</h2>
+                        <p class="mt-1 text-sm text-muted">
+                            {{ $todayTotalCount }}
+                            {{ $todayTotalCount === 1 ? 'task' : 'tasks' }} planned
+                        </p>
+                    </div>
+
+                    @if ($dueTodayTasks > 5)
+                        <a
+                            href="{{ route('tasks.index', ['due_date' => 'today', 'status' => 'pending']) }}"
+                            class="btn btn-text shrink-0 px-2"
+                        >
+                            View all today
+                        </a>
+                    @endif
                 </div>
 
+                @if ($todayTasks->isNotEmpty())
+                    <div class="divide-y divide-border">
+                        @foreach ($todayTasks as $task)
+                            <x-dashboard-task-row :task="$task" />
+                        @endforeach
+                    </div>
+                @elseif ($todayTotalCount > 0 && $todayCompletedCount === $todayTotalCount)
+                    <div class="px-5 py-8">
+                        <h3 class="text-base font-semibold text-success">Today is complete.</h3>
+                        <p class="mt-2 text-sm leading-6 text-text-secondary">
+                            You finished everything planned for today.
+                        </p>
+                    </div>
+                @else
+                    <div class="px-5 py-8">
+                        <h3 class="text-base font-semibold text-text-primary">Nothing due today.</h3>
+                        <p class="mt-2 text-sm leading-6 text-text-secondary">
+                            Your day is clear. Check upcoming work or add something new.
+                        </p>
+                    </div>
+                @endif
+            </section>
+
+            {{-- Daily progress --}}
+            <section
+                aria-labelledby="progress-title"
+                class="rounded-2xl border border-border bg-surface p-5 min-[1360px]:col-span-4 min-[1360px]:col-start-9 min-[1360px]:row-start-1"
+            >
+                <p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Today’s progress</p>
+                <h2 id="progress-title" class="sr-only">Today’s progress</h2>
+
+                @if ($todayTotalCount > 0)
+                    <div class="mt-4 flex items-end justify-between gap-4">
+                        <p class="text-3xl font-semibold tracking-tight text-text-primary">
+                            {{ $todayProgressPercentage }}%
+                        </p>
+                        <p class="pb-1 text-sm font-medium text-text-secondary">
+                            {{ $todayCompletedCount }} of {{ $todayTotalCount }} completed
+                        </p>
+                    </div>
+
+                    <div
+                        class="mt-4 h-2 overflow-hidden rounded-full bg-border"
+                        role="progressbar"
+                        aria-label="Tasks completed today"
+                        aria-valuemin="0"
+                        aria-valuemax="{{ $todayTotalCount }}"
+                        aria-valuenow="{{ $todayCompletedCount }}"
+                        aria-valuetext="{{ $todayCompletedCount }} of {{ $todayTotalCount }} completed"
+                    >
+                        <div
+                            class="h-full rounded-full bg-primary transition-[width] duration-300"
+                            style="width: {{ $todayProgressPercentage }}%"
+                        ></div>
+                    </div>
+
+                    <p class="mt-4 text-sm leading-6 text-text-secondary">
+                        @if ($todayCompletedCount === $todayTotalCount)
+                            Everything planned for today is complete.
+                        @elseif ($todayCompletedCount === 0)
+                            Start with one task at a time.
+                        @else
+                            Keep going—your day is taking shape.
+                        @endif
+                    </p>
+                @else
+                    <p class="mt-4 text-lg font-semibold text-text-primary">Nothing scheduled.</p>
+                    <p class="mt-2 text-sm leading-6 text-text-secondary">
+                        Progress will appear when tasks are due today.
+                    </p>
+                @endif
+            </section>
+
+            {{-- Overdue only occupies space when needed. --}}
+            @if ($overdueTasks > 0)
+                <section
+                    aria-labelledby="overdue-title"
+                    class="overflow-hidden rounded-2xl border border-danger/20 bg-surface min-[1360px]:col-span-4 min-[1360px]:col-start-9 min-[1360px]:row-start-2"
+                >
+                    <div class="border-b border-danger/15 bg-danger-soft/60 px-4 py-4 sm:px-5">
+                        <h2 id="overdue-title" class="text-lg font-semibold text-text-primary">Overdue</h2>
+                        <p class="mt-1 text-sm text-danger">
+                            {{ $overdueTasks }} {{ $overdueTasks === 1 ? 'task needs' : 'tasks need' }} attention
+                        </p>
+                    </div>
+
+                    <div class="divide-y divide-border">
+                        @foreach ($overdueTaskList as $task)
+                            <x-dashboard-task-row :task="$task" context="overdue" />
+                        @endforeach
+                    </div>
+
+                    @if ($overdueTasks > $overdueTaskList->count())
+                        <div class="border-t border-border px-4 py-3 sm:px-5">
+                            <a
+                                href="{{ route('tasks.index', ['due_date' => 'overdue', 'status' => 'pending']) }}"
+                                class="text-sm font-semibold text-primary hover:text-primary-hover"
+                            >
+                                View all overdue
+                            </a>
+                        </div>
+                    @endif
+                </section>
             @endif
 
+            {{-- Upcoming --}}
+            <section
+                aria-labelledby="upcoming-title"
+                class="overflow-hidden rounded-2xl border border-border bg-surface min-[1360px]:col-span-8 min-[1360px]:row-start-3"
+            >
+                <div class="flex items-end justify-between gap-4 border-b border-border px-4 py-4 sm:px-5">
+                    <div>
+                        <h2 id="upcoming-title" class="type-h3">Upcoming</h2>
+                        <p class="mt-1 text-sm text-muted">Your next pending deadlines</p>
+                    </div>
+
+                    <a
+                        href="{{ route('tasks.index', ['due_date' => 'upcoming', 'status' => 'pending']) }}"
+                        class="btn btn-text shrink-0 px-2"
+                    >
+                        View all
+                    </a>
+                </div>
+
+                @if ($upcomingTasks->isNotEmpty())
+                    <div class="divide-y divide-border">
+                        @foreach ($upcomingTasks as $task)
+                            <x-dashboard-task-row :task="$task" context="upcoming" />
+                        @endforeach
+                    </div>
+                @else
+                    <div class="px-5 py-8">
+                        <h3 class="text-base font-semibold text-text-primary">Nothing upcoming.</h3>
+                        <p class="mt-2 text-sm leading-6 text-text-secondary">
+                            Future deadlines will appear here.
+                        </p>
+                    </div>
+                @endif
+            </section>
+
+            {{-- Secondary workspace statistics --}}
+            <section
+                aria-labelledby="workspace-overview-title"
+                class="rounded-2xl border border-border bg-surface p-5 min-[1360px]:col-span-4 min-[1360px]:col-start-9 min-[1360px]:row-start-3"
+            >
+                <h2 id="workspace-overview-title" class="text-base font-semibold text-text-primary">
+                    Workspace overview
+                </h2>
+                <p class="mt-1 text-sm text-muted">Secondary account totals</p>
+
+                <dl class="mt-5 grid grid-cols-2 gap-x-5 gap-y-5">
+                    <div>
+                        <dt class="text-xs font-medium text-muted">Total</dt>
+                        <dd class="mt-1 text-xl font-semibold text-text-primary">{{ $totalTasks }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-muted">Pending</dt>
+                        <dd class="mt-1 text-xl font-semibold text-text-primary">{{ $pendingTasks }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-muted">Completed</dt>
+                        <dd class="mt-1 text-xl font-semibold text-success">{{ $completedTasks }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-muted">Overdue</dt>
+                        <dd class="mt-1 text-xl font-semibold {{ $overdueTasks > 0 ? 'text-danger' : 'text-text-primary' }}">
+                            {{ $overdueTasks }}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs font-medium text-muted">Categories</dt>
+                        <dd class="mt-1 text-xl font-semibold text-text-primary">{{ $categoriesCount }}</dd>
+                    </div>
+                </dl>
+            </section>
         </div>
-
-
-
-        {{-- Quick Actions --}}
-        <aside>
-
-            <h2
-                class="
-                    mb-5
-                    text-lg
-                    font-semibold
-                    text-text-primary
-                "
-            >
-                Quick Actions
-            </h2>
-
-
-            <div
-                class="
-                    rounded-3xl
-                    border
-                    border-border
-                    bg-surface
-                    p-5
-                    shadow-sm
-                "
-            >
-
-
-                {{-- Create Task --}}
-                <a
-                    href="{{ route('tasks.create') }}"
-                    class="
-                        flex
-                        items-center
-                        gap-4
-                        rounded-2xl
-                        bg-primary
-                        p-4
-                        text-white
-                        transition
-                        hover:bg-primary-hover
-                    "
-                >
-
-                    <div
-                        class="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-white/15
-                            text-xl
-                        "
-                    >
-                        +
-                    </div>
-
-
-                    <div>
-
-                        <p class="text-sm font-semibold">
-                            Create Task
-                        </p>
-
-                        <p class="mt-1 text-xs text-white/70">
-                            Add something new.
-                        </p>
-
-                    </div>
-
-                </a>
-
-
-
-                {{-- Tasks --}}
-                <a
-                    href="{{ route('tasks.index') }}"
-                    class="
-                        mt-3
-                        flex
-                        items-center
-                        gap-4
-                        rounded-2xl
-                        border
-                        border-border
-                        p-4
-                        transition
-                        hover:border-primary/30
-                        hover:bg-mint-soft
-                    "
-                >
-
-                    <div
-                        class="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-mint-soft
-                            font-semibold
-                            text-primary
-                        "
-                    >
-                        ✓
-                    </div>
-
-
-                    <div>
-
-                        <p
-                            class="
-                                text-sm
-                                font-semibold
-                                text-text-primary
-                            "
-                        >
-                            My Tasks
-                        </p>
-
-                        <p
-                            class="
-                                mt-1
-                                text-xs
-                                text-text-secondary
-                            "
-                        >
-                            View and organize tasks.
-                        </p>
-
-                    </div>
-
-                </a>
-
-
-
-                {{-- Categories --}}
-                <a
-                    href="{{ route('categories.index') }}"
-                    class="
-                        mt-3
-                        flex
-                        items-center
-                        gap-4
-                        rounded-2xl
-                        border
-                        border-border
-                        p-4
-                        transition
-                        hover:border-primary/30
-                        hover:bg-mint-soft
-                    "
-                >
-
-                    <div
-                        class="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-mint-soft
-                            font-semibold
-                            text-primary
-                        "
-                    >
-                        #
-                    </div>
-
-
-                    <div>
-
-                        <p
-                            class="
-                                text-sm
-                                font-semibold
-                                text-text-primary
-                            "
-                        >
-                            Categories
-                        </p>
-
-                        <p
-                            class="
-                                mt-1
-                                text-xs
-                                text-text-secondary
-                            "
-                        >
-                            Manage your workspace.
-                        </p>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-
-            {{-- Small Productivity Card --}}
-            <div
-                class="
-                    mt-5
-                    rounded-3xl
-                    bg-yellow-soft
-                    p-5
-                "
-            >
-
-                <p
-                    class="
-                        text-xs
-                        font-semibold
-                        uppercase
-                        tracking-wide
-                        text-text-secondary
-                    "
-                >
-                    Today
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-lg
-                        font-semibold
-                        text-text-primary
-                    "
-                >
-                    {{ $dueTodayTasks }}
-                    {{ $dueTodayTasks === 1 ? 'task' : 'tasks' }}
-                    due today
-                </p>
-
-
-                <p
-                    class="
-                        mt-2
-                        text-sm
-                        leading-6
-                        text-text-secondary
-                    "
-                >
-                    Focus on what matters most
-                    and keep the list manageable.
-                </p>
-
-            </div>
-
-        </aside>
-
-    </section>
-
+    @endif
 @endsection

@@ -75,29 +75,6 @@
     </section>
 
 
-    {{-- Success Message --}}
-    @if (session('success'))
-
-        <div
-            class="
-                mb-6
-                rounded-2xl
-                border
-                border-success/20
-                bg-mint-soft
-                px-5
-                py-4
-                text-sm
-                font-medium
-                text-success
-            "
-        >
-            {{ session('success') }}
-        </div>
-
-    @endif
-
-
     {{-- Validation Errors --}}
     @if ($errors->any())
 

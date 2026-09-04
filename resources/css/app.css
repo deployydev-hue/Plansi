@@ -5,96 +5,377 @@
 @source '../views/**/*.blade.php';
 @source '../js/**/*.js';
 
-
 @theme {
-    /* Typography */
-    --font-sans:
-        'Instrument Sans',
-        ui-sans-serif,
-        system-ui,
-        sans-serif,
-        'Apple Color Emoji',
-        'Segoe UI Emoji',
-        'Segoe UI Symbol',
-        'Noto Color Emoji';
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+    --color-primary: #185c46;
+    --color-primary-hover: #124936;
+    --color-mint: #b9dcca;
+    --color-mint-soft: #e5f1eb;
+    --color-background: #f8f7f2;
+    --color-surface: #ffffff;
+    --color-text-primary: #1d2823;
+    --color-text-secondary: #52605a;
+    --color-muted: #68756f;
+    --color-border: #c8d1cc;
+    --color-control-border: #87968f;
+    --color-success: #246b49;
+    --color-success-soft: #e3f1e8;
+    --color-warning: #855a00;
+    --color-warning-soft: #fff1cc;
+    --color-danger: #b42318;
+    --color-danger-soft: #fce8e6;
+    --color-info: #285e8e;
+    --color-info-soft: #e7f0f8;
 
-    /* PLANSI Brand Colors */
+    /* Backwards-compatible aliases used by existing views. */
+    --color-yellow-accent: #d8a62d;
+    --color-yellow-soft: #fff1cc;
 
-    /* Primary */
-    --color-primary: #174C3C;
-    --color-primary-hover: #123D31;
+    --radius-sm: 0.5rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1rem;
 
-    /* Mint */
-    --color-mint: #BFE3D0;
-    --color-mint-soft: #E7F4ED;
+    --shadow-sm: 0 1px 2px rgb(29 40 35 / 0.05);
+    --shadow-md: 0 8px 24px rgb(29 40 35 / 0.08);
+    --shadow-lg: 0 16px 40px rgb(29 40 35 / 0.1);
 
-    /* Backgrounds */
-    --color-background: #FAF9F5;
-    --color-surface: #FFFFFF;
-
-    /* Yellow Accent */
-    --color-yellow-accent: #F4C95D;
-    --color-yellow-soft: #FFF4CF;
-
-    /* Typography */
-    --color-text-primary: #1D2925;
-    --color-text-secondary: #66736E;
-
-    /* UI */
-    --color-border: #DDE5E1;
-
-    /* States */
-    --color-danger: #D95C59;
-    --color-success: #3D8B68;
+    --default-transition-duration: 180ms;
+    --default-transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+@layer base {
+    html {
+        min-width: 320px;
+        background: #f8f7f2;
+        color-scheme: light;
+        scroll-behavior: smooth;
+    }
 
-/* Global Application Styles */
+    body {
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        background: #f8f7f2;
+        color: #1d2823;
+        font-family: var(--font-sans);
+        font-size: 1rem;
+        line-height: 1.625;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
 
-html {
-    background-color: #FAF9F5;
+    button,
+    input,
+    select,
+    textarea {
+        font: inherit;
+    }
+
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']) {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+        cursor: not-allowed;
+    }
+
+    :focus-visible {
+        outline: 3px solid #185c46;
+        outline-offset: 3px;
+    }
+
+    ::selection {
+        background: #b9dcca;
+        color: #1d2823;
+    }
 }
 
-body {
-    min-height: 100vh;
-    margin: 0;
-    overflow-x: hidden;
+@layer components {
+    .type-display {
+        font-size: clamp(2.5rem, 4vw, 3.5rem);
+        font-weight: 600;
+        line-height: 1.0715;
+        letter-spacing: -0.035em;
+    }
 
-    background-color: #FAF9F5;
+    .type-h1 {
+        font-size: clamp(2rem, 3vw, 2.5rem);
+        font-weight: 600;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+    }
 
-    color: #1D2925;
+    .type-h2 {
+        font-size: 1.875rem;
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+    }
 
-    font-family:
-        'Instrument Sans',
-        ui-sans-serif,
-        system-ui,
-        sans-serif;
+    .type-h3 {
+        font-size: 1.375rem;
+        font-weight: 600;
+        line-height: 1.2727;
+        letter-spacing: -0.015em;
+    }
 
-    -webkit-font-smoothing: antialiased;
+    .type-body {
+        font-size: 1rem;
+        line-height: 1.625;
+    }
+
+    .type-small {
+        font-size: 0.875rem;
+        line-height: 1.4286;
+    }
+
+    .type-supporting {
+        font-size: 0.8125rem;
+        line-height: 1.3846;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #1d2823;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 2.875rem;
+        border: 1px solid #87968f;
+        border-radius: 0.75rem;
+        background: #fff;
+        padding: 0.6875rem 0.875rem;
+        color: #1d2823;
+        font-size: 0.9375rem;
+        line-height: 1.5rem;
+        transition: border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .form-control::placeholder {
+        color: #68756f;
+        opacity: 1;
+    }
+
+    .form-control:hover:not(:disabled) {
+        border-color: #52605a;
+    }
+
+    .form-control:focus {
+        border-color: #185c46;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgb(24 92 70 / 0.18);
+    }
+
+    .form-control:disabled {
+        border-color: #c8d1cc;
+        background: #eef0ed;
+        color: #68756f;
+        opacity: 1;
+    }
+
+    .form-control[aria-invalid='true'],
+    .form-control.is-error {
+        border-color: #b42318;
+    }
+
+    .form-control[aria-invalid='true']:focus,
+    .form-control.is-error:focus {
+        box-shadow: 0 0 0 3px rgb(180 35 24 / 0.16);
+    }
+
+    .form-hint {
+        margin-top: 0.5rem;
+        color: #68756f;
+        font-size: 0.8125rem;
+        line-height: 1.125rem;
+    }
+
+    .form-error {
+        margin-top: 0.5rem;
+        color: #b42318;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1.125rem;
+    }
+
+    .btn {
+        position: relative;
+        display: inline-flex;
+        min-height: 2.75rem;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border: 1px solid transparent;
+        border-radius: 0.75rem;
+        padding: 0.625rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.25rem;
+        text-decoration: none;
+        transition: color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            background-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            border-color 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1),
+            box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .btn:active:not(:disabled):not([aria-disabled='true']) {
+        transform: translateY(1px);
+    }
+
+    .btn:disabled,
+    .btn[aria-disabled='true'] {
+        pointer-events: none;
+        opacity: 0.52;
+    }
+
+    .btn-primary {
+        background: #185c46;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background: #124936;
+    }
+
+    .btn-secondary {
+        border-color: #87968f;
+        background: #fff;
+        color: #1d2823;
+    }
+
+    .btn-secondary:hover {
+        border-color: #185c46;
+        background: #e5f1eb;
+        color: #185c46;
+    }
+
+    .btn-text {
+        min-height: 2.5rem;
+        background: transparent;
+        color: #185c46;
+        padding-inline: 0.75rem;
+    }
+
+    .btn-text:hover {
+        background: #e5f1eb;
+    }
+
+    .btn-danger {
+        border-color: #b42318;
+        background: #fff;
+        color: #b42318;
+    }
+
+    .btn-danger:hover {
+        background: #fce8e6;
+    }
+
+    .btn-icon {
+        width: 2.75rem;
+        min-width: 2.75rem;
+        padding: 0;
+    }
+
+    .btn[data-loading='true'] {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
+    .skip-link {
+        position: fixed;
+        top: 0.75rem;
+        left: 0.75rem;
+        z-index: 100;
+        transform: translateY(-180%);
+        border-radius: 0.5rem;
+        background: #1d2823;
+        padding: 0.625rem 0.875rem;
+        color: #fff;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .skip-link:focus {
+        transform: translateY(0);
+    }
 }
 
-
-/* Better default form behavior */
-
-button,
-input,
-select,
-textarea {
-    font: inherit;
+/*
+ * Existing forms adopt the accessible control boundary before their page-level
+ * redesign. Unlayered rules intentionally take precedence over legacy utility
+ * classes while preserving explicit error styling.
+ */
+input:not([type='hidden']):not([type='checkbox']):not([type='radio']):not(.border-danger),
+textarea:not(.border-danger),
+select:not(.border-danger) {
+    border-color: #87968f;
 }
 
-
-button,
-a {
-    -webkit-tap-highlight-color: transparent;
+input:not([type='hidden']):not([type='checkbox']):not([type='radio']):hover:not(:disabled),
+textarea:hover:not(:disabled),
+select:hover:not(:disabled) {
+    border-color: #52605a;
 }
 
-:focus-visible {
-    outline: 2px solid #174C3C;
-    outline-offset: 2px;
+input:not([type='hidden']):not([type='checkbox']):not([type='radio']):focus,
+textarea:focus,
+select:focus {
+    border-color: #185c46;
+}
+
+input.border-danger,
+textarea.border-danger,
+select.border-danger {
+    border-color: #b42318;
 }
 
 [x-cloak] {
     display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }

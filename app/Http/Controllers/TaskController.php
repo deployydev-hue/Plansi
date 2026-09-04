@@ -54,13 +54,14 @@ class TaskController extends Controller
         // Sort
         switch ($filters['sort'] ?? 'newest') {
             case 'oldest':
-                $query->oldest();
+                $query->oldest()->orderBy('id');
                 break;
 
             case 'due_soon':
                 $query
                     ->orderByRaw('due_at IS NULL')
-                    ->orderBy('due_at');
+                    ->orderBy('due_at')
+                    ->orderBy('id');
                 break;
 
             case 'priority_high':
@@ -70,23 +71,36 @@ class TaskController extends Controller
                     WHEN 'medium' THEN 2
                     WHEN 'low' THEN 3
                 END
-            ");
+            ")
+                    ->orderByRaw('due_at IS NULL')
+                    ->orderBy('due_at')
+                    ->orderBy('id');
                 break;
 
             default:
-                $query->latest();
+                $query->latest()->orderByDesc('id');
                 break;
         }
 
-        $tasks = $query->get();
+        $tasks = $query
+            ->paginate(20)
+            ->withQueryString();
 
-        $categories = auth()
+        $categories = $request
             ->user()
             ->categories()
             ->orderBy('name')
-            ->get();
+            ->get(['id', 'name']);
 
-        return view('tasks.index', compact('tasks', 'categories'));
+        $workspaceTaskCount = $request->user()->tasks()->count();
+        $dueTodayCount = $request->user()->tasks()->dueToday()->count();
+
+        return view('tasks.index', compact(
+            'tasks',
+            'categories',
+            'workspaceTaskCount',
+            'dueTodayCount',
+        ));
     }
 
     /**

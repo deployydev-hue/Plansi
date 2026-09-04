@@ -267,36 +267,6 @@
             </div>
 
 
-            {{-- Success --}}
-            @if (session('status'))
-
-                <div
-                    class="
-                        mb-6
-                        rounded-2xl
-                        border
-                        border-success/20
-                        bg-mint-soft
-                        px-5
-                        py-4
-                    "
-                >
-
-                    <p
-                        class="
-                            text-sm
-                            font-semibold
-                            text-success
-                        "
-                    >
-                        {{ session('status') }}
-                    </p>
-
-                </div>
-
-            @endif
-
-
             {{-- General Errors --}}
             @if ($errors->any())
 

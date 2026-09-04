@@ -1,9 +1,8 @@
 @props([
     'name',
     'label' => null,
-    'options' => [],
-    'selected' => '',
-    'placeholder' => 'Select an option',
+    'type' => 'text',
+    'value' => null,
     'required' => false,
     'disabled' => false,
     'hint' => null,
@@ -14,7 +13,6 @@
     $fieldId = $attributes->get('id', $name);
     $safeId = preg_replace('/[^a-zA-Z0-9_-]/', '-', $fieldId);
     $error = $errors->first($name);
-    $selected = old($name, $selected);
     $hintId = $hint ? $safeId.'-hint' : null;
     $errorId = $error ? $safeId.'-error' : null;
     $describedBy = collect([$hintId, $errorId])->filter()->implode(' ');
@@ -33,33 +31,20 @@
         </div>
     @endif
 
-    <select
+    <input
         id="{{ $fieldId }}"
         name="{{ $name }}"
+        type="{{ $type }}"
+        value="{{ old($name, $value) }}"
         @if ($required) required @endif
         @if ($disabled) disabled @endif
         @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
         @if ($error) aria-invalid="true" @endif
         {{ $attributes->except('id')->class([
-            'form-control appearance-none pr-10',
+            'form-control',
             'is-error' => $error,
         ]) }}
-        style="
-            background-image: url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%2352605A' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E&quot;);
-            background-position: right 0.75rem center;
-            background-repeat: no-repeat;
-        "
     >
-        <option value="" @selected((string) $selected === '')>
-            {{ $placeholder }}
-        </option>
-
-        @foreach ($options as $value => $optionLabel)
-            <option value="{{ $value }}" @selected((string) $selected === (string) $value)>
-                {{ $optionLabel }}
-            </option>
-        @endforeach
-    </select>
 
     @if ($hint)
         <p id="{{ $hintId }}" class="form-hint">{{ $hint }}</p>
